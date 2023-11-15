@@ -1,0 +1,613 @@
+$(document).ready(function(){
+
+    $(document).mousemove(function (pos) {
+		$(".team-player-photos-big_img-b").css({top: pos.clientY+2, left: pos.clientX+2});
+	});
+
+
+    // Футбольный калькулятор
+    // Проверка имени пользователя
+    $('#name_player').bind('keypress keyup', function()
+    {
+        var name_playerValue = $(this).val();
+        var rename_player = /[^a-zA-Zа-яА-ЯёЁіІєЄ\s]/gi;
+        if (rename_player.test(name_playerValue))
+        {
+            name_playerValue = name_playerValue.replace(rename_player, '');
+            $(this).val(name_playerValue);
+        }
+    });
+    // Проверка почты пользователя
+	$('#mail').bind('change', function()
+    {
+        var mailValue = $(this).val();
+        if (/^[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z.]{2,6}$/i.test(mailValue))
+        {
+            $(this).val(mailValue);
+        }
+        else{
+            $(this).val('');
+            alert("Email некоректний!");
+            return false;
+        }
+    });
+    // Проверка данных пользователя
+	$('#deadlift, #squats, #beingPress, #height, #weight, #age').bind('keypress keyup', function()
+    {
+        var boxValue = $(this).val();
+        var re = /[^0-9]/gi;
+        if (re.test(boxValue))
+        {
+            boxValue = boxValue.replace(re, '');
+            $(this).val(boxValue);
+        }
+    });
+    $('#deadlift').bind('change', function()
+    {
+        if ($(this).val()<500)
+        {
+            $(this).val($(this).val());
+        }
+        else{
+            $(this).val('');
+            alert("Не перебільшуй!");
+        }
+    });
+    $('#squats').bind('change', function()
+    {
+        if ($(this).val()<500)
+        {
+            $(this).val($(this).val());
+        }
+        else{
+            $(this).val('');
+            alert("Не перебільшуй!");
+        }
+    });
+    $('#beingPress').bind('change', function()
+    {
+        if ($(this).val()<300)
+        {
+            $(this).val($(this).val());
+        }
+        else{
+            $(this).val('');
+            alert("Не перебільшуй!");
+        }
+    });
+    $('#height').bind('change', function()
+    {
+        if ( 50 < $(this).val() && $(this).val() < 220 )
+        {
+            $(this).val($(this).val());
+        }
+        else{
+            $(this).val('');
+            alert("Зріст некоректний!");
+        }
+    });
+    $('#weight').bind('change', function()
+    {
+        if ($(this).val()<250)
+        {
+            $(this).val($(this).val());
+        }
+        else{
+            $(this).val('');
+            alert("Не перебільшуй!");
+        }
+    });
+    $('#run').bind('change', function()
+    {
+        if ($(this).val()>3)
+        {
+            $(this).val($(this).val());
+        }
+        else{
+            $(this).val('');
+            alert("Не перебільшуй!");
+        }
+    });
+    // Проверка скорости пользователя
+	$('#run').bind('keypress keyup', function()
+    {
+        var runValue = $(this).val();
+        var rerun = /[^0-9.]/gi;
+        if (rerun.test(runValue))
+        {
+            runValue = runValue.replace(rerun, '');
+            $(this).val(runValue);
+        }
+    });
+	// Валидация данных пользователя
+	$('#name_player, #mail, #age, #weight, #height, #beingPress, #squats, #deadlift, #run').change( function() {
+		var massInput = ['#name_player', '#mail', '#age', '#weight', '#height', '#beingPress', '#squats', '#deadlift', '#run'];
+		var changeStatus = true;
+		for (var i = massInput.length - 1; i >= 0; i--) {
+
+			if (!$(massInput[i]).val())
+			{
+				changeStatus = false;
+				break;
+			}
+		};
+		if(changeStatus)
+		{
+			$('#calc').removeAttr('disabled').focus();
+		}
+	});
+
+	$('.reset-button').click(function(){
+		$('#calc').attr('disabled', 'disabled');
+	})
+
+    $('.football_calc-form').submit(function(e){
+        e.preventDefault();
+        personTest();
+    });
+    $('#peopleheight, #peopleweight, #peoplewaist, #peopleneck').change( function() {
+        var massInput2 = ['#peopleheight', '#peopleweight', '#peoplewaist', '#peopleneck'];
+        var changeStatus2 = true;
+        for (var i = massInput2.length - 1; i >= 0; i--) {
+
+            if (!$(massInput2[i]).val())
+            {
+                changeStatus2 = false;
+                break;
+            }
+        };
+        if(changeStatus2)
+        {
+            $('#peopleimtdo').removeAttr('disabled').focus();
+        }
+    });
+    $('.imt-form').submit(function(el){
+		el.preventDefault();
+		peopleTest();
+	});
+    $('#reset2').click(function() {
+        $('.imt-results').css('display', 'none');
+        $('.imt-img').css('display', 'block');
+        $('#peopleimtdo').attr('disabled', 'disabled');
+    });
+
+    $('.archive_games tr').each(function(i){
+        var homeScoreGames = $(this).find('.home_team_scor').text(),
+            visitedScoreGames =  $(this).find('.visited_team_scor').text();
+
+        if (visitedScoreGames > homeScoreGames) {
+            $(this).find('.archive_games-home_team').addClass('deepgrey');
+            $(this).find('.home_team_scor').addClass('deepgrey');
+        }
+        else{
+            $(this).find('.archive_games-visited_team').addClass('deepgrey');
+            $(this).find('.visited_team_scor').addClass('deepgrey');
+        }
+
+    });
+
+    //exp
+    var $exp = $('.exp'),
+        date = new Date(),
+        dateYear = date.getFullYear();
+
+    $exp.each(function(){
+        var $this = $(this),
+            $expData = parseInt($this.data('exp')),
+            expResult = dateYear - $expData;
+
+        if ($expData == dateYear) {
+             $(this).text('-');
+        }
+        else{
+            $(this).text(expResult+' '+incline(['рік', 'роки', 'років'], expResult));
+        }
+    });
+
+}); // Конец
+
+function tabs(){
+    var settings = {
+        tab : '.tab_switch ul',
+        tabCurrent : 'current_tab',
+        tabSection : '.tabs',
+        tabContent : '.tab'
+    };
+    $(settings.tab).delegate('li:not(.'+settings.tabCurrent+')', 'click', function() {
+        var $el = $(this);
+        $el
+            .addClass(settings.tabCurrent)
+            .siblings().removeClass(settings.tabCurrent)
+            .parents(settings.tabSection).find(settings.tabContent).eq($el.index()).fadeIn(150)
+            .siblings(settings.tabContent).hide();
+    });
+}
+
+function personTest(){
+
+    // function plpost(person){
+
+    //     var dataString = 'name_player=' + person.playerName + '&playerEmail=' + person.playerEmail + '&age=' + person.playerAge + '&weight=' + person.playerWeight + '&height=' + person.playerHeight + '&beingPress=' + person.playerBeingPress + '&squats=' + person.playerSquats + '&deadlift=' + person.playerDeadlift + '&run=' + person.playerRun;
+    //     $.ajax({
+    //       type: "POST",
+    //       url: "/wp-content/themes/vinwolves-wp/include/mail/process.php",
+    //       data: dataString
+    //     });
+    // }
+
+	var person = {
+		playerName : $('#name_player').val(),
+        playerEmail : $('#mail').val(),
+        playerAge : $('#age').val(),
+        playerWeight : $('#weight').val(),
+        playerHeight : $('#height').val(),
+        playerBeingPress : $('#beingPress').val(),
+        playerSquats : $('#squats').val(),
+        playerDeadlift : $('#deadlift').val(),
+        playerRun : $('#run').val()
+	}
+
+	var personValue = {
+		maxBeingPress : person.playerWeight*1,
+        maxSquats : person.playerWeight*1.5,
+        maxDeadlift : person.playerWeight*1.6
+	}
+
+	if(person.playerAge<18){
+		z='Вибач, '+person.playerName+', але ти ще занадто молодий для нашої команди. Тренуйся і через кілька років приходь.';
+	}
+	else{
+	  if(person.playerAge>40){
+	  	z='Вибач, '+person.playerName+', але ти вже застарий для футболу. Спробуй себе у іншову виді спорту.';
+	  }
+	  else {
+	     if(person.playerWeight<75){
+	     	z='Вибач, '+person.playerName+', але твоя вага занадто мала для такого виду спорту. Тренуйся, набирай вагу і пізніше спробуй знову.';
+	     }
+	     else {
+	       if(person.playerHeight<150){
+	       	z='Вибач, '+person.playerName+', але ти не підходиш за критеріями зросту';
+	       }
+	       else{
+	         if(person.playerBeingPress<50 || person.playerSquats<50 || person.playerDeadlift<50){
+	         	z=person.playerName+', запишись в спорт зал, а тоді вже приходь на футбол';
+	         }
+	         else{
+	           if(person.playerRun>22){
+	           	z=person.playerName+', потренуйся трохи в плані бігу і тоді приходь.';
+	           }
+	           else{
+	             if(person.playerBeingPress>=personValue.maxBeingPress && person.playerSquats>=personValue.maxSquats && person.playerDeadlift>=personValue.maxDeadlift && person.playerRun<15 && person.playerWeight<=100 && person.playerWeight>85){
+	             	z='Вітаю, '+person.playerName+', наша команда буде рада тебе бачити на тренуванні! Думаємо, що ти підійдеш нам на позиціях TE,FB,RB,LB.';
+	             }
+	             else{
+	               if(person.playerBeingPress>=personValue.maxBeingPress && person.playerSquats>=personValue.maxSquats && person.playerDeadlift>=personValue.maxDeadlift && person.playerRun<13 && person.playerWeight<=85){
+	               	z='Вітаю, '+person.playerName+', наша команда буде рада тебе бачити на тренуванні! Думаємо, що ти підійдеш нам на позиціях WR,QB,C,FS,SS.';
+	               }
+	               else{
+	                 if(person.playerBeingPress>=personValue.maxBeingPress && person.playerSquats>=personValue.maxSquats && person.playerDeadlift>=personValue.maxDeadlift && person.playerWeight>100){
+	                 	z='Вітаю, '+person.playerName+', наша команда буде рада тебе бачити на тренуванні! Думаємо, що ти підійдеш нам як гравець ліній захисту чи нападу.';
+	                 }
+	                 else {
+	                 	z='Вітаю, '+person.playerName+', на даний момент важко визначити  позицію, яка найбільш відповідає твоїм показникам, але ми виховаємо з тебе футболіста';
+	                 }
+	               }
+	             }
+	           }
+	         }
+	      }
+	    }
+	  }
+	}
+	$('.popupper_3').find('.football_calc-text').text(z);
+    // plpost(person);
+}
+
+
+(function($){
+    $.fn.gameTime = function () {
+        return this.each(function(){
+
+            var box = $(this),
+                gameData = box.data('poster_date'),
+                gameDataBegin = box.data('poster_begin_date'),
+                gameDataEnd = box.data('poster_end_date'),
+                gameDateArr = gameData.split('.').reverse(),
+                gameDateArr_ = gameDateArr+',',
+                gameDataBeginFull = gameDateArr_+gameDataBegin,
+                gameDataEndFull = gameDateArr_+gameDataEnd,
+                gameBeginDate = new Date(gameDataBeginFull),
+                gameEndDate = new Date(gameDataEndFull);
+
+            function countdown(box, gameBeginDate, gameEndDate){
+                var now = new Date(),
+                    totalRemains = gameBeginDate.getTime()-now.getTime();
+
+                if (totalRemains>1)
+                {
+                    var RemainsSec=(parseInt(totalRemains/1000)),
+                        RemainsFullDays=(parseInt(RemainsSec/(24*60*60))),
+                        secInLastDay=RemainsSec-RemainsFullDays*24*3600,
+                        RemainsFullHours=(parseInt(secInLastDay/3600));
+                    if (RemainsFullHours<10){RemainsFullHours="0"+RemainsFullHours};
+                    var secInLastHour=secInLastDay-RemainsFullHours*3600,
+                        RemainsMinutes=(parseInt(secInLastHour/60));
+                    if (RemainsMinutes<10){RemainsMinutes="0"+RemainsMinutes};
+                    var lastSec=secInLastHour-RemainsMinutes*60;
+                    if (lastSec<10){lastSec="0"+lastSec};
+
+                    box.find('.gametimer-bl').text(RemainsFullDays+' '+incline(['день', 'дні', 'днів'], RemainsFullDays)+' '+RemainsFullHours+":"+RemainsMinutes+":"+lastSec);
+                }
+                else {
+                    box.html("<span class='gametimer-text'>Гра почалася!</span>");
+                };
+
+                if (gameEndDate.getTime() <= now.getTime()) {
+                    box.html("<span class='gametimer-text'>Гра закінчилася!</span>");
+                };
+
+                setTimeout(countdown, 1000, box, gameBeginDate, gameEndDate);
+            }
+
+            countdown(box, gameBeginDate, gameEndDate);
+
+        });
+    };
+})($);
+
+function incline(words,n){ // первый параметр -- 3-и варианта склонения существительного по правилу 1, 2, 5; второй -- сама переменная с числом
+   return words[(n%100>4 && n%100<20)?2:[2,0,1,1,1,2][Math.min(n%10,5)]];
+}
+
+// modal.js
+(function($){
+  function block(settings){
+      settings.popup.hide();
+      settings.popupShadowBlock.hide();
+      settings.key = false;
+  }
+  modal = function() {
+    this._init = function(element, options) {
+      var defaults = {
+        key: false,
+        modalPositionCenter: true,
+        modalLink: $(element),
+        popup: $('.popupper-js'),
+        popupShadowBlock: $('.popup-shadow-js')
+      },
+      settings = $.extend(defaults, options);
+      settings.modalLink.click(function(){
+        var modalLinkID = $(this).attr("data-popup"),
+            modalPopap = $('.popupper_'+modalLinkID);
+        settings.popup.hide();
+        settings.popupShadowBlock.show();
+        modalPopap.show();
+        if (settings.modalPositionCenter == true) {
+            modalPopap.css({top:($(window).height()/2-modalPopap.height()/2), left:($(window).width()/2-modalPopap.width()/2)});
+        }
+        else{
+            modalPopap.addClass('popupper-pos');
+        };
+      });
+      settings.popup.find('.popupper-close-js').click(function(){
+          block(settings);
+          return;
+      });
+      $(window).keydown(function(eventObject){
+          if (eventObject.which == 27){
+              block(settings);
+          }
+      });
+      $(document).click(function(event) {
+          var state = $('.popup-shadow-js').css("display") == 'none';
+          if(settings.key && !$(event.target).closest(settings.popup).length){
+              block(settings);
+              return;
+          }
+
+          if(!$(event.target).hasClass("popupper-close-js"))
+          {
+             settings.key = true;
+          }
+          if(state) settings.key = false;
+      });
+    };
+  };
+  // Launch plugin
+  $.fn.modal = function( options ){
+
+      return this.each(function(){
+
+           $( this ).data( "modal", new modal()._init( this, options ) );
+
+       });
+  };
+})($);
+// end modal.js
+
+(function($){
+    $.fn.toTop = function(options) {
+
+        var defaults = {
+                min: 132,
+                containerClass: 'totop',
+                scrollSpeed: 1200,
+                easingType: 'linear'
+            },
+            settings = $.extend(defaults, options),
+            containerClasshash = '.' + settings.containerClass;
+
+            $(containerClasshash).click(function(){
+                $('html, body').animate({scrollTop:0}, settings.scrollSpeed, settings.easingType);
+                return false;
+            })
+
+        $(window).scroll(function() {
+            var sd = $(window).scrollTop();
+            if ( sd > settings.min )
+                $(containerClasshash).fadeIn(1000);
+            else
+                $(containerClasshash).fadeOut(1000);
+        });
+};
+})($);
+
+function peopleTest(){
+    var peopleVal = {
+        peopleHeight : $('#peopleheight').val(),
+        peopleWeight : $('#peopleweight').val(),
+        peopleWaist : $('#peoplewaist').val(),
+        peopleNeck : $('#peopleneck').val(),
+        peoplePopup : $('.imt-results'),
+        peopleImg : $('.imt-img')
+    }
+
+    var peopleHeightMeter = peopleVal.peopleHeight/100,
+        resultImt =  peopleVal.peopleWeight/Math.pow(peopleHeightMeter,2),
+        resultImtFix = resultImt.toFixed(1),
+        logcon = Math.LN10,
+        resultPercent = 495/(1.0324 - 0.19077*(Math.log(peopleVal.peopleWaist-peopleVal.peopleNeck)/logcon) + 0.15456*(Math.log(peopleVal.peopleHeight)/logcon) ) - 450,
+        resultPercentFix = resultPercent.toFixed(1),
+        resultWeight = peopleVal.peopleWeight*((100 - resultPercent)/100),
+        resultWeightFix = resultWeight.toFixed(1),
+        resultWaist = (peopleVal.peopleWaist/peopleVal.peopleHeight) + 0.005,
+        resultWaistFix = resultWaist.toFixed(1),
+        resultProtein = peopleVal.peopleWeight*1.4,
+        resultProteinFix = resultProtein.toFixed(),
+        resultCarbohydrates = peopleVal.peopleWeight*4.5,
+        resultCarbohydratesFix = resultCarbohydrates.toFixed(),
+        resultFats = peopleVal.peopleWeight,
+        resultCalories = peopleVal.peopleWeight*33
+
+
+    peopleVal.peoplePopup.find('.result_imt').text(resultImtFix);
+    peopleVal.peoplePopup.find('.result_waist').text(resultWaistFix);
+    peopleVal.peoplePopup.find('.result_percent').text(resultPercentFix);
+    peopleVal.peoplePopup.find('.result_weight').text(resultWeightFix);
+    peopleVal.peoplePopup.find('.result_protein').text(resultProteinFix);
+    peopleVal.peoplePopup.find('.result_carbohydrates').text(resultCarbohydratesFix);
+    peopleVal.peoplePopup.find('.result_fats').text(resultFats);
+    peopleVal.peoplePopup.find('.result_calories').text(resultCalories);
+
+    if (resultImtFix < 18.5) {
+        resultAll = "У Вас дефіцит маси тіла. Спробуйте краще їсти"
+    }
+    else{
+        if (resultImtFix>=18.5 && resultImtFix<=24.9){
+            resultAll = "У Вас нормальна маса тіла. Підтримуйте її та нарощуйте силові та швидкісні показники"
+        }
+        else{
+            if (resultImtFix >= 25 && resultImtFix <= 29.9 && resultWaistFix <= 0.5){
+                resultAll = "У Вас надлишкова маса тіла, але не велика кількість черевного жиру"
+            }
+            else{
+                if (resultImtFix >= 25 && resultImtFix <= 29.9 && resultWaistFix > 0.5) {
+                    resultAll = "У Вас надлишкова маса тіла"
+                }
+                else{
+                    if (resultImtFix >= 30 && resultWaistFix <= 0.5) {
+                        resultAll = "У Вас надлишкова маса тіла, але спортивна статура"
+                    }
+                    else{
+                        resultAll = "У Вас ожиріння. Займіться спортом, правильно харчуйтесь"
+                    }
+                }
+            }
+        }
+    }
+    peopleVal.peoplePopup.find('.result_all').text(resultAll);
+
+    if (resultPercentFix < 0 || isNaN(resultPercentFix) == true) {
+        alert('Помилка в вимірах, не правильно задані розміри');
+        $('#peopleneck').val('');
+        $('#peoplewaist').val('');
+        $('#peopleweight').val('');
+        $('#peopleheight').val('');
+        peopleVal.peoplePopup.css('display', 'none');
+        peopleVal.peopleImg.css('display', 'block');
+        $('#peopleimtdo').attr('disabled', 'disabled');
+    }
+    else{
+        peopleVal.peoplePopup.css('display', 'block');
+        peopleVal.peopleImg.css('display', 'none');
+    }
+    // console.log(isNaN(resultPercentFix));
+}
+
+
+
+(function( $ ){
+    jQuery.fn.lightboxContent = function () {
+        return this.each(function(){
+
+            var $elImg = $(this).find('img');
+
+            $elImg.each(function(){
+
+                var $el = $(this),
+                    $elSrc = $el.attr('src'),
+                    $elAlt = $el.attr('alt'),
+                    $parent = $el.parent('a');
+
+                if ($el.length) {
+                    if ($parent.length == 1) {
+                        if (!$parent.parent().hasClass('ngg-gallery-thumbnail')) {
+                            $parent
+                                .attr({
+                                    href: $elSrc,
+                                    title: $elAlt,
+                                    'data-lightbox': 'lightbox'
+                                });
+                        };
+                    }
+                    else{
+                        $el.wrap("<a href='"+ $elSrc +"' data-lightbox='lightbox' title='"+ $elAlt +"'></a>");
+                    }
+                };
+
+            });
+
+        });
+    };
+})($);
+
+
+(function($){
+
+    function jsonDataValue($key, $lang, $dataVal){
+        var result = null;
+        $.ajax({
+            async: false,
+            url: "/wp-content/themes/vinwolves-wp/data/teams.json",
+            dataType: "json",
+            success: function(data){
+                result = data;
+            }
+        });
+        return result[$key][$lang][$dataVal];
+    };
+
+    function getLang(){
+        var mainLang = $('html').attr('lang'),
+            linkArr = mainLang.split('-'),
+            lang = linkArr.shift();
+        return lang;
+    };
+
+    getLang();
+
+    var $tr = $('.standings-table').find('td.standings-team-name');
+    $tr.each(function(){
+        var $this = $(this),
+            $thisTdKey = $this.text(),
+            $lang = getLang(),
+            $teamImgAlt = jsonDataValue($thisTdKey, $lang, 'teamName'),
+            $teamImgSrc = '/wp-content/themes/vinwolves-wp/images/teams/'+$thisTdKey+'.png',
+            $teamImgBig = '<img src="'+$teamImgSrc+'" alt="'+$teamImgAlt+'">',
+            $teamImgSmall = '<img src="'+$teamImgSrc+'" class="rlogo-small" alt="'+$teamImgAlt+'">',
+            $html = '<span class="rlogo">'+$teamImgSmall+'<span class="big-icon">'+$teamImgBig+'</span></span> '+$teamImgAlt;
+        $this.html($html)
+    });
+
+})($);
+
